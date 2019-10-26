@@ -6,7 +6,7 @@
 /*   By: ehell <ehell@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 13:57:34 by ehell             #+#    #+#             */
-/*   Updated: 2019/10/21 15:33:25 by ehell            ###   ########.fr       */
+/*   Updated: 2019/10/26 17:29:09 by ehell            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,27 @@
 char	*ft_myjoin(char *s1, char *s2)
 {
 	char	*tmp;
+	size_t	i;
+	size_t	n;
 
-	tmp = ft_strjoin(s1, s2);
+	i = 0;
+	tmp = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (tmp)
+	{
+		while (s1[i] != '\0')
+		{
+			tmp[i] = s1[i];
+			i++;
+		}
+		n = 0;
+		while (s2[n] != '\0')
+		{
+			tmp[i] = s2[n];
+			i++;
+			n++;
+		}
+	}
+	tmp[i] = '\0';
 	free(s1);
 	s1 = NULL;
 	return (tmp);
@@ -75,7 +94,7 @@ int		get_next_line(const int fd, char **line)
 	char			*buff;
 	int				r;
 
-	if (fd < 0 || BUFF_SIZE < 0 || !line ||
+	if (fd < 0 || BUFF_SIZE <= 0 || !line ||
 		!(buff = ft_memalloc(BUFF_SIZE + 1)))
 		return (-1);
 	if (!file_mass[fd])
