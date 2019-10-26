@@ -6,7 +6,7 @@
 /*   By: ehell <ehell@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 14:29:02 by ehell             #+#    #+#             */
-/*   Updated: 2019/10/19 13:09:13 by ehell            ###   ########.fr       */
+/*   Updated: 2019/10/21 15:20:45 by ehell            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include "libft/libft.h"
-# define BUFF_SIZE 500
-
-/*typedef struct		s_list
-{
-	char			*content;
-	struct s_list	*next;
-}					t_list;
-*/
-typedef struct		s_file
-{
-	char			*mass;
-	int				fd;
-}					t_file;
+# define BUFF_SIZE 100
 
 int					get_next_line(const int fd, char **line);
 

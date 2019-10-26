@@ -6,7 +6,7 @@
 /*   By: ehell <ehell@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 13:57:34 by ehell             #+#    #+#             */
-/*   Updated: 2019/10/19 21:46:51 by ehell            ###   ########.fr       */
+/*   Updated: 2019/10/21 15:33:25 by ehell            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,9 @@ char	*ft_myjoin(char *s1, char *s2)
 {
 	char	*tmp;
 
-	tmp = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (tmp)
-	{
-		tmp = ft_strjoin(s1, s2);
-		free(s1);
-	}
+	tmp = ft_strjoin(s1, s2);
+	free(s1);
+	s1 = NULL;
 	return (tmp);
 }
 
@@ -67,44 +64,36 @@ char	*ft_strskip(char *s)
 		}
 	}
 	free(s);
+	s = NULL;
+	tmp1 = NULL;
 	return (tmp2);
 }
 
 int		get_next_line(const int fd, char **line)
 {
-	static	char	*file_mass;
+	static	char	*file_mass[1000];
 	char			*buff;
 	int				r;
 
 	if (fd < 0 || BUFF_SIZE < 0 || !line ||
 		!(buff = ft_memalloc(BUFF_SIZE + 1)))
 		return (-1);
-	if (!file_mass)
-		file_mass = ft_strnew(1);
+	if (!file_mass[fd])
+		file_mass[fd] = ft_strnew(1);
 	r = 1;
-	while (!ft_strchr(buff, '\n') && !ft_strchr(file_mass, '\n') && r != 0)
+	while (!ft_strchr(buff, '\n') && !ft_strchr(file_mass[fd], '\n') && r != 0)
 	{
 		ft_bzero(buff, BUFF_SIZE + 1);
 		if ((r = read(fd, buff, BUFF_SIZE)) == -1)
-		{
-			free(buff);
-			free(file_mass);
 			return (-1);
-		}
-		else if (r == 0 && file_mass[0] == '\0')
+		if (!(file_mass[fd] = ft_myjoin(file_mass[fd], buff)))
+			return (-1);
+		if (r == 0 && file_mass[fd][0] == '\0')
 			return (0);
-		else
-		{
-			if (!(file_mass = ft_myjoin(file_mass, buff)))
-			{
-				free(file_mass);
-				free(buff);
-				return (-1);
-			}
-		}
 	}
 	free(buff);
-	*line = ft_mycpy(file_mass);
-	file_mass = ft_strskip(file_mass);
+	buff = NULL;
+	*line = ft_mycpy(file_mass[fd]);
+	file_mass[fd] = ft_strskip(file_mass[fd]);
 	return (1);
 }
