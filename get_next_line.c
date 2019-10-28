@@ -6,7 +6,7 @@
 /*   By: ehell <ehell@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 13:57:34 by ehell             #+#    #+#             */
-/*   Updated: 2019/10/26 17:29:09 by ehell            ###   ########.fr       */
+/*   Updated: 2019/10/28 15:22:13 by ehell            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ char	*ft_strskip(char *s)
 
 int		get_next_line(const int fd, char **line)
 {
-	static	char	*file_mass[1000];
+	static	char	*file_mass[999];
 	char			*buff;
 	int				r;
 
