@@ -6,39 +6,29 @@
 /*   By: ehell <ehell@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 13:57:34 by ehell             #+#    #+#             */
-/*   Updated: 2019/11/09 19:54:25 by ehell            ###   ########.fr       */
+/*   Updated: 2019/11/11 17:30:43 by ehell            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_myjoin(char *s1, char *s2)
+int		ft_myjoin(char *s1, int fd)
 {
 	char	*tmp;
-	size_t	i;
-	size_t	n;
+	int		i;
+	char	*buff;
 
 	i = 0;
-	tmp = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (tmp)
-	{
-		while (s1[i] != '\0')
-		{
-			tmp[i] = s1[i];
-			i++;
-		}
-		n = 0;
-		while (s2[n] != '\0')
-		{
-			tmp[i] = s2[n];
-			i++;
-			n++;
-		}
-	}
-	tmp[i] = '\0';
+	if (!(buff = ft_memalloc(BUFF_SIZE + 1)))
+		return (-1);
+	if ((i = read(fd, buff, BUFF_SIZE)) == -1)
+		return (-1);
+			ft_putstr("here");
+	tmp = ft_strjoin(tmp, buff);
 	free(s1);
-	s1 = NULL;
-	return (tmp);
+	s1 = tmp;
+	ft_putstr(tmp);
+	return (i);
 }
 
 char	*ft_mycpy(char *s2)
@@ -108,35 +98,25 @@ t_file	*find_elem(t_file *file_mass, int fd)
 
 int		get_next_line(const int fd, char **line)
 {
-	static	t_file	*file_mass;
+	static	t_file	*file_mass = NULL;
 	t_file			*file;
-	char			*buff;
 	char			*tmp;
 	int				r;
 
-	if (fd < 0 || BUFF_SIZE <= 0 || !line ||
-		!(buff = ft_memalloc(BUFF_SIZE + 1)))
+	if (fd < 0 || BUFF_SIZE <= 0 || !line)
 		return (-1);
 	file = find_elem(file_mass, fd);
+	tmp = file->cont;
 	r = 1;
-	while (!ft_strchr(buff, '\n') && !ft_strchr(file->cont, '\n')
-		&& r != 0)
+	while (!ft_strchr(tmp, '\n') && r != 0)
 	{
-		ft_bzero(buff, BUFF_SIZE + 1);
-		ft_putnbr(ft_strlen(file->cont));
-		ft_putchar('\n');
-		if ((r = read(fd, buff, BUFF_SIZE)) == -1)
-			return (-1);
-		ft_putnbr(ft_strlen(file->cont));					////////!!!!!!!JFEO???????????????????????DTYJTYJTY
-		if (!(file->cont = ft_myjoin(file->cont, buff)))
-			return (-1);
 		ft_putstr("here");
-		if (r == 0 && !file->cont)
+		if ((r = ft_myjoin(tmp, file->fd)) < 0)
+			return (-1);
+		if (r == 0 || !tmp)
 			return (0);
 	}
-	free(buff);
-	buff = NULL;
-	*line = ft_mycpy(file->cont);
-	file->cont = ft_strskip(file->cont);
+	*line = ft_mycpy(tmp);
+	file->cont = ft_strskip(tmp);
 	return (1);
 }
