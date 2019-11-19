@@ -6,7 +6,7 @@
 /*   By: ehell <ehell@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 13:57:34 by ehell             #+#    #+#             */
-/*   Updated: 2019/11/18 20:42:48 by ehell            ###   ########.fr       */
+/*   Updated: 2019/11/19 16:52:39 by ehell            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,24 +77,22 @@ char	*ft_strskip(char *s)
 	return (tmp2);
 }
 
-t_file	*find_elem(t_file **file_mass, int fd)
+t_file	*find_elem(t_file *file_mass, int fd)
 {
 	t_file	*tmp1;
 	t_file	tmp2;
 
-	tmp1 = *file_mass;
-//	ft_putnbr((int)(*file_mass)->fd);
-//	ft_putchar('\n');
+	tmp1 = file_mass;
 	while (tmp1)
-		if ((*tmp1).fd == fd)
+		if (tmp1->fd == fd)
 			return (tmp1);
 		else
 			tmp1 = tmp1->next;
 	tmp2.fd = fd;
 	tmp2.cont = ft_strnew(1);
-	tmp2.next = *file_mass;
-	*file_mass = &tmp2;
-	return (*file_mass);
+	tmp2.next = file_mass;
+	file_mass = &tmp2;
+	return (file_mass);
 }
 
 int		get_next_line(const int fd, char **line)
@@ -106,7 +104,7 @@ int		get_next_line(const int fd, char **line)
 
 	if (fd < 0 || BUFF_SIZE <= 0 || !line)
 		return (-1);
-	file = find_elem(&file_mass, fd);
+	file = find_elem(file_mass, fd);
 	tmp = file->cont;
 	r = 1;
 	while (!ft_strchr(tmp, '\n') && r != 0)
