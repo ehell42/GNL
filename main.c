@@ -10,24 +10,51 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include <string.h>
+#include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include "get_next_line.h"
 
-int main()
+/*
+** 4 lines with 16 chars with Line Feed
+*/
+
+int				main(void)
 {
+    char		*line;
+    int			fd;
+    int			ret;
+    int			count_lines;
+    char		*filename;
+    int			errors;
 
-    char		*line = NULL;
-	int			fd = open("/Users/ehell/42FileChecker/srcs/gnl/gnl10.txt", O_RDONLY);
-//	int			fd = open("txt.txt", O_RDONLY);
-	int				i = 0;
-
-	while((get_next_line(fd, &line)) > 0)
-	{
-	    ft_putstr(line);
-		i++;
-	}
-	ft_putchar('\n');
-	ft_putnbr(i);
-	close(fd);
+    filename = "../test.txt";
+    fd = open(filename, O_RDONLY);
+    if (fd > 2)
+    {
+        count_lines = 0;
+        errors = 0;
+        line = NULL;
+        while ((ret = get_next_line(fd, &line)) > 0)
+        {
+            if (count_lines == 0 && strcmp(line, "1234567") != 0)
+                errors++;
+            if (count_lines == 1 && strcmp(line, "abcdefgh") != 0)
+                errors++;
+            count_lines++;
+            if (count_lines > 50)
+                break ;
+        }
+        close(fd);
+        if (count_lines != 2)
+            printf("-> must have returned '1' twice instead of %d time(s)\n", count_lines);
+        if (errors > 0)
+            printf("-> must have read \"1234567\" and \"abcdefgh\"\n");
+        if (count_lines == 2 && errors == 0)
+            printf("OK\n");
+    }
+    else
+        printf("An error occured while opening file %s\n", filename);
     return (0);
 }

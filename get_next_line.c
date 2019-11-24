@@ -12,109 +12,86 @@
 
 #include "get_next_line.h"
 
-int		ft_myjoin(char **s1, int fd)
+int		ft_myjoin(t_file *s1, int fd)
 {
-	char	*tmp;
 	int		i;
-	char	*buff;
+	char    *meme;
+    char    buff[BUFF_SIZE + 1];
 
-	i = 0;
-	if (!(buff = ft_memalloc(BUFF_SIZE + 1)))
-		return (-1);
-	if ((i = read(fd, buff, BUFF_SIZE)) == -1)
-		return (-1);
-	tmp = ft_strjoin(*s1, buff);
-	free(*s1);
-	*s1 = tmp;
-	free(buff);
+    ft_bzero(buff, BUFF_SIZE + 1);
+    while (((i = read(fd, buff, BUFF_SIZE)) > 0))
+    {
+        if(s1->cont == NULL)
+            s1->cont = ft_strnew(1);
+        meme = ft_strjoin(s1->cont, buff);
+        free(s1->cont);
+        s1->cont = meme;
+        if (ft_strchr(s1->cont, '\n'))
+            break ;
+    }
+    if (i < 0)
+        return (-1);
 	return (i);
 }
 
-char	*ft_mycpy(char *s2)
+int makeline(char **line, t_file *longm, int fd, int schitali)
 {
-	char	*s1;
-	size_t	i;
+    int i;
+    char *mem;
 
-	i = 0;
-	s1 = ft_strnew(ft_strlen(s2) + 1);
-	if (s1)
-	{
-		while (s2[i] != '\n' && s2[i] != '\0')
-		{
-			s1[i] = s2[i];
-			i++;
-		}
-		s1[i] = '\0';
-	}
-	return (s1);
+    i = 0;
+    while ((longm->cont)[i] != '\n' && (longm->cont)[i] != '\0')
+        i++;
+    if ((longm->cont)[i] == '\n')
+    {
+        *line = ft_strsub(longm->cont, 0, i);
+        mem = ft_strdup((longm->cont) + i + 1);
+        free(longm->cont);
+        longm->cont = mem;
+       if ((longm->cont)[0] == '\0')
+           ft_strdel(&(longm->cont));
+    }
+    else
+    {
+        if (schitali == BUFF_SIZE)
+            return (get_next_line(fd, line));
+        *line = ft_strsub(longm->cont, 0, i);
+        ft_strdel(&(longm->cont));
+    }
+    return (1);
 }
 
-char	*ft_strskip(char *s)
+t_file	*find_elem(t_file **file_mass, int fd)
 {
-	char	*tmp1;
-	char	*tmp2;
-	size_t	i;
+    t_file	*tmp1;
+	t_file	*tmp2;
 
-	i = 0;
-	tmp1 = ft_strchr(s, '\n');
-	tmp2 = NULL;
-	if (tmp1)
-	{
-		tmp2 = (char *)malloc(sizeof(char) * (ft_strlen(tmp1) + 1));
-		if (tmp2)
-		{
-			while (tmp1[i + 1] != '\0' && tmp1[i] != '\0')
-			{
-				tmp2[i] = tmp1[i + 1];
-				i++;
-			}
-			tmp2[i] = '\0';
-		}
-	}
-	free(s);
-	s = NULL;
-	tmp1 = NULL;
-	return (tmp2);
-}
-
-t_file	*find_elem(t_file *file_mass, int fd)
-{
-	t_file	*tmp1;
-	t_file	tmp2;
-
-	tmp1 = file_mass;
+	tmp1 = *file_mass;
 	while (tmp1)
 		if (tmp1->fd == fd)
 			return (tmp1);
 		else
 			tmp1 = tmp1->next;
-	tmp2.fd = fd;
-	tmp2.cont = ft_strnew(1);
-	tmp2.next = file_mass;
-	file_mass = &tmp2;
-	return (file_mass);
+    if (!(tmp2 = (t_file *)ft_memalloc(sizeof(t_file))))
+        return (NULL);
+	tmp2->fd = fd;
+	tmp2->cont = NULL;
+	tmp2->next = *file_mass;
+	*file_mass = tmp2;
+	return (*file_mass);
 }
 
-int		get_next_line(const int fd, char **line)
-{
-	static	t_file	*file_mass = NULL;
-	t_file			*file;
-	char			*tmp;
-	int				r;
+int		get_next_line(const int fd, char **line) {
+    static t_file *file_mass;
+    t_file *file;
+    int r;
 
-	if (fd < 0 || BUFF_SIZE <= 0 || !line)
-		return (-1);
-	file = find_elem(file_mass, fd);
-	tmp = file->cont;
-	r = 1;
-	while (!ft_strchr(tmp, '\n') && r != 0)
-	{
-		if ((r = ft_myjoin(&tmp, fd)) < 0)
-			return (-1);
-		if (r == 0 && tmp[0] == '\0')
-			return (0);
-	}
-	*line = ft_mycpy(tmp);
-	file->cont = ft_strskip(tmp);
-	return (1);
+    if (fd < 0 || BUFF_SIZE <= 0 || !line)
+        return (-1);
+    file = find_elem(&file_mass, fd);
+    if ((r = ft_myjoin(file, fd)) < 0)
+        return (-1);
+    if (r == 0 && file->cont == NULL)
+        return (0);
+    return (makeline(line, file, fd, r));
 }
